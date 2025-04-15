@@ -1,21 +1,22 @@
 import React from 'react';
 import { Camera, MessageCircle, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import background from "./../assous/background.jpeg"
 
 function HomePage() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
-      <div 
+      <div
         className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 md:p-12"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=3869&ixlib=rb-4.0.3')",
+          backgroundImage: `url(${background})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-xl p-8 transition-colors duration-200">
+        <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl p-8 transition-colors duration-200">
           <h1 className="text-4xl md:text-5xl font-serif text-gray-900 dark:text-white text-center mb-6">
             Welcome to Our Digital Guestbook
           </h1>

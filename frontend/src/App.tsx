@@ -30,7 +30,7 @@ function App() {
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <Heart className="h-8 w-8 text-rose-500" />
-                <span className="ml-2 text-xl font-serif text-gray-900 dark:text-white">Digital Guestbook</span>
+                <span className="ml-2 text-xl font-serif text-gray-900 dark:text-white">Aouatif & Mahdi</span>
               </div>
               <div className="flex items-center space-x-4">
                 <button
