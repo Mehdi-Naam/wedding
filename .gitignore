@@ -1,0 +1,31 @@
+# Virtual Env
+env/
+.env
+
+# Django settings
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+
+backend/__pycache__/
+
+# React settings
+node_modules/
+build/
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Ignore Django migrations
+migrations/
+
+db.sqlite3
+
+# backend/backend/backend/__pycache__/*

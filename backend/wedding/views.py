@@ -7,14 +7,15 @@ import os
 import mimetypes
 from .serializers import WeddingSerializer
 
-@api_view(['POST'])
-def upload_media(request):
-    user = Wedding.objects.first()  # adjust this to find the right user
+from rest_framework.parsers import MultiPartParser, FormParser
 
-    uploaded_file = request.FILES.get('file')
+def upload_media(uploaded_file, wedding):
 
-    if not uploaded_file:
-        return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
+    # serializer = WeddingSerializer(data=data)
+    # if not serializer.is_valid():
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # wedding = serializer.save()
 
     mime_type, _ = mimetypes.guess_type(uploaded_file.name)
 
@@ -24,36 +25,22 @@ def upload_media(request):
     file_ext = os.path.splitext(uploaded_file.name)[1]
 
     if mime_type.startswith('image'):
-        filename = f"{user.full_name}_avatar{file_ext}"
-        user.avatar.save(filename, uploaded_file, save=True)
+        filename = f"{wedding.full_name}_avatar{file_ext}"
+        wedding.avatar.save(filename, uploaded_file, save=True)
     elif mime_type.startswith('video'):
-        filename = f"{user.full_name}_video{file_ext}"
-        user.video.save(filename, uploaded_file, save=True)
+        filename = f"{wedding.full_name}_video{file_ext}"
+        wedding.video.save(filename, uploaded_file, save=True)
     else:
         return Response({'error': 'Only image and video files are supported.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    user.save()
-    return Response({'message': 'Media uploaded successfully'}, status=status.HTTP_200_OK)
+    wedding.save()
+
+    return Response({'message': 'Wedding data and media uploaded successfully', 'data': wedding.data}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET'])
-def image(request):
-	user_data = Wedding.objects.get()
+class DataView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
 
-	if user_data:
-		return Response({'full_name': user_data['full_name'], 'avatar': user_data.get('avatar')})
-	return Response({'error': 'No valid token found'}, status=401)
-
-@api_view(['GET'])
-def video(request):
-	user_data = Wedding.objects.get()
-
-	if user_data:
-		return Response({'full_name': user_data['full_name'], 'video': user_data.get('video')})
-	return Response({'error': 'No valid token found'}, status=401)
-
-
-class MessageView(APIView):
     def get(self, request):
         try:
             user_data = Wedding.objects.all()
@@ -64,12 +51,25 @@ class MessageView(APIView):
 
     def post(self, request):
         try:
-            rec_data = request.data
-            data = WeddingSerializer(data=rec_data)
-            if data.is_valid():
-                data.save()
-                return Response(data.data, status=status.HTTP_201_CREATED)
-            return Response({'error': 'No valid token found'}, status=status.HTTP_401_UNAUTHORIZED)
-        except Wedding.DoesNotExist:
-            return Response({'error': 'No valid token found'}, status=status.HTTP_401_UNAUTHORIZED)
+            print(request.data)  # Debug: incoming data
 
+            data_ = WeddingSerializer(data=request.data)
+
+            # Optional: custom media handling
+            image = request.FILES.get('image', None)
+            video = request.FILES.get('video', None)
+
+            if image or video:
+                print("📸🎥 Media detected")
+                upload_media(image, data_ )
+
+            if data_.is_valid():
+                data_.save()
+                return Response(data_.data, status=status.HTTP_201_CREATED)
+
+            print("❌ Validation failed:", data_.errors)
+            return Response({'error': data_.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            print("🔥 Server error:", str(e))
+            return Response({'error': 'Server error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
