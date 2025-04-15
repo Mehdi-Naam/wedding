@@ -40,7 +40,7 @@ function MessageForm() {
           if (mediaRecorderRef.current?.state === 'recording') {
             mediaRecorderRef.current.stop();
           }
-        }, 30000); // 30 second limit
+        }, 30000);
       }
     }
   };
@@ -66,7 +66,7 @@ function MessageForm() {
     }
     // Here you would typically send the data to your backend
     console.log({ name, message, recordedVideo, selectedImage });
-    // Reset form
+
     setName('');
     setMessage('');
     setRecordedVideo(null);
@@ -78,11 +78,11 @@ function MessageForm() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
       <div className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 transition-colors duration-200">
         <h2 className="text-3xl font-serif text-gray-900 dark:text-white mb-8 text-center">Leave Your Message</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">
             <div className="flex items-center space-x-2 mb-4">
-              <User className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              {/* <User className="h-5 w-5 text-gray-500 dark:text-gray-400" /> */}
               <input
                 type="text"
                 value={name}

@@ -1,9 +1,11 @@
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Wedding
 import os
 import mimetypes
+from .serializers import WeddingSerializer
 
 @api_view(['POST'])
 def upload_media(request):
@@ -39,13 +41,35 @@ def image(request):
 	user_data = Wedding.objects.get()
 
 	if user_data:
-		return Response({'user_id': user_data['id'], 'full_name': user_data['full_name'], 'avatar': user_data.get('avatar')})
+		return Response({'full_name': user_data['full_name'], 'avatar': user_data.get('avatar')})
 	return Response({'error': 'No valid token found'}, status=401)
 
 @api_view(['GET'])
-def message(request):
+def video(request):
 	user_data = Wedding.objects.get()
 
 	if user_data:
-		return Response({'user_id': user_data['id'], 'full_name': user_data['full_name'], 'message': user_data.get('message')})
+		return Response({'full_name': user_data['full_name'], 'video': user_data.get('video')})
 	return Response({'error': 'No valid token found'}, status=401)
+
+
+class MessageView(APIView):
+    def get(self, request):
+        try:
+            user_data = Wedding.objects.all()
+            data      = WeddingSerializer(user_data, many=True).data
+            return Response(data, status=status.HTTP_200_OK)
+        except Wedding.DoesNotExist:
+            return Response({'error': 'No valid token found'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def post(self, request):
+        try:
+            rec_data = request.data
+            data = WeddingSerializer(data=rec_data)
+            if data.is_valid():
+                data.save()
+                return Response(data.data, status=status.HTTP_201_CREATED)
+            return Response({'error': 'No valid token found'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Wedding.DoesNotExist:
+            return Response({'error': 'No valid token found'}, status=status.HTTP_401_UNAUTHORIZED)
+
