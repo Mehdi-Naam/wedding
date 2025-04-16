@@ -51,8 +51,6 @@ class DataView(APIView):
 
     def post(self, request):
         try:
-            print(request.data)  # Debug: incoming data
-
             data_ = WeddingSerializer(data=request.data)
 
             # Optional: custom media handling
@@ -62,6 +60,7 @@ class DataView(APIView):
             if image or video:
                 print("📸🎥 Media detected")
                 upload_media(image, data_ )
+                # upload_media(video, data_ )
 
             if data_.is_valid():
                 data_.save()
