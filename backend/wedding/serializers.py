@@ -1,9 +1,18 @@
 from rest_framework import serializers
-from .models import Wedding
+from .models import Image, Video, Message
 
-class WeddingSerializer(serializers.ModelSerializer):
+class ImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Wedding
-        fields = ['message', 'full_name', 'image', 'video']
-        # fields = ['message', 'full_name', 'image', 'video', 'created_at']
+        model = Image
+        fields = ['full_name', 'image']
+
+class VideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ['full_name', 'video']
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['full_name', 'message']
 
