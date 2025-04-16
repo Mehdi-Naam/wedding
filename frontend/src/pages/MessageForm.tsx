@@ -69,9 +69,9 @@ function MessageForm() {
     const formData = new FormData();
     formData.append('full_name', name);
     formData.append('message', message);
-  
+
     if (selectedImage !== null) {
-      formData.append('file', selectedImage);
+      formData.append('image', selectedImage);
     }
 
     try {

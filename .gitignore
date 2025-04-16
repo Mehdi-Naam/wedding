@@ -25,7 +25,7 @@ Thumbs.db
 
 # Ignore Django migrations
 migrations/
-
+backend/db.*
 db.sqlite3
 
 # backend/backend/backend/__pycache__/*

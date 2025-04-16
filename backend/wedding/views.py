@@ -1,74 +1,68 @@
-from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Wedding
-import os
-import mimetypes
-from .serializers import WeddingSerializer
-
+from .models import Message, Video, Image
+from .serializers import MessageSerializer, VideoSerializer, ImageSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 
-def upload_media(uploaded_file, wedding):
-
-    # serializer = WeddingSerializer(data=data)
-    # if not serializer.is_valid():
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # wedding = serializer.save()
-
-    mime_type, _ = mimetypes.guess_type(uploaded_file.name)
-
-    if mime_type is None:
-        return Response({'error': 'Unsupported file type'}, status=status.HTTP_400_BAD_REQUEST)
-
-    file_ext = os.path.splitext(uploaded_file.name)[1]
-
-    if mime_type.startswith('image'):
-        filename = f"{wedding.full_name}_avatar{file_ext}"
-        wedding.avatar.save(filename, uploaded_file, save=True)
-    elif mime_type.startswith('video'):
-        filename = f"{wedding.full_name}_video{file_ext}"
-        wedding.video.save(filename, uploaded_file, save=True)
-    else:
-        return Response({'error': 'Only image and video files are supported.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    wedding.save()
-
-    return Response({'message': 'Wedding data and media uploaded successfully', 'data': wedding.data}, status=status.HTTP_201_CREATED)
-
-
 class DataView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
+	parser_classes = [MultiPartParser, FormParser]
 
-    def get(self, request):
-        try:
-            user_data = Wedding.objects.all()
-            data      = WeddingSerializer(user_data, many=True).data
-            return Response(data, status=status.HTTP_200_OK)
-        except Wedding.DoesNotExist:
-            return Response({'error': 'No valid token found'}, status=status.HTTP_401_UNAUTHORIZED)
+	def get(self, request):
+		messages = [
+			{
+				"message": msg["message"],
+				"full_name": msg["full_name"]
+			}
+			for msg in MessageSerializer(Message.objects.all(), many=True).data
+		]
 
-    def post(self, request):
-        try:
-            data_ = WeddingSerializer(data=request.data)
+		images = [
+			{
+				"image": img["image"],
+				"full_name": img["full_name"]
+			}
+			for img in ImageSerializer(Image.objects.all(), many=True).data
+		]
 
-            # Optional: custom media handling
-            image = request.FILES.get('image', None)
-            video = request.FILES.get('video', None)
+		videos = [
+			{
+				"video": vid["video"],
+				"full_name": vid["full_name"]
+			}
+			for vid in VideoSerializer(Video.objects.all(), many=True).data
+		]
 
-            if image or video:
-                print("📸🎥 Media detected")
-                upload_media(image, data_ )
-                # upload_media(video, data_ )
+		combined_data = messages + images + videos
+		return Response(combined_data)
 
-            if data_.is_valid():
-                data_.save()
-                return Response(data_.data, status=status.HTTP_201_CREATED)
+	def post(self, request):
 
-            print("❌ Validation failed:", data_.errors)
-            return Response({'error': data_.errors}, status=status.HTTP_400_BAD_REQUEST)
+		full_name    = request.data.get('full_name')
+		message_text = request.data.get('message')
+		image        = request.FILES.get('image')
+		video        = request.FILES.get('video')
 
-        except Exception as e:
-            print("🔥 Server error:", str(e))
-            return Response({'error': 'Server error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		message_instance = None
+		if message_text:
+			msg_serializer = MessageSerializer(data={'full_name': full_name, 'message': message_text})
+			if msg_serializer.is_valid():
+				message_instance = msg_serializer.save()
+			else:
+				return Response({'error': msg_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+		if image:
+			img_serializer = ImageSerializer(data={'full_name': full_name, 'image': image})
+			if img_serializer.is_valid():
+				img_serializer.save()
+			else:
+				return Response({'error': img_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+		if video:
+			vid_serializer = VideoSerializer(data={'full_name': full_name, 'video': video})
+			if vid_serializer.is_valid():
+				vid_serializer.save()
+			else:
+				return Response({'error': vid_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+		return Response({'message': 'Data saved successfully ✅'}, status=status.HTTP_201_CREATED)
