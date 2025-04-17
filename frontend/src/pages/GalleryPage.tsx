@@ -58,7 +58,7 @@ function GalleryPage() {
   
     if (item.video) {
       type = 'video';
-      content = item.video;
+      content = `${avatar_URL}${item.video}`;
     } else if (item.image) {
       type = 'image';
       content = `${avatar_URL}${item.image}`;
