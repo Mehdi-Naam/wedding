@@ -47,6 +47,8 @@ class DataView(APIView):
 		image        = request.FILES.get('image')
 		video        = request.FILES.get('video')
 
+		print(f"video:    {video}")
+
 		message_instance = None
 		if message_text:
 			msg_serializer = MessageSerializer(data={'full_name': full_name, 'message': message_text})

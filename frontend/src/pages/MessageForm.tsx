@@ -10,54 +10,50 @@ import {Toaster , toast } from 'sonner';
 function MessageForm() {
   const [name, setName]       = useState('');
   const [message, setMessage] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
   const [showEmoji, setShowEmoji]         = useState(false);
-  const [recordedVideo, setRecordedVideo] = useState<File | null>(null);
+
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const webcamRef        = useRef<Webcam>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'recorded'>('idle');
 
-  const handleStartRecording = () => {
-    if (webcamRef.current) {
-      const stream = webcamRef.current.stream;
-      if (stream) {
-        mediaRecorderRef.current = new MediaRecorder(stream);
-        const chunks: BlobPart[] = [];
-
-        mediaRecorderRef.current.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            chunks.push(event.data);
-          }
-        };
-
-        mediaRecorderRef.current.onstop = () => {
-          const blob = new Blob(chunks, { type: 'video/webm' });
-          setRecordedVideo(URL.createObjectURL(blob));
-          setRecordingStatus('recorded');
-        };
-
-        mediaRecorderRef.current.start();
-        setRecordingStatus('recording');
-        setTimeout(() => {
-          if (mediaRecorderRef.current?.state === 'recording') {
-            mediaRecorderRef.current.stop();
-          }
-        }, 30000);
-      }
-    }
-  };
-
-
-  const handleStopRecording = () => {
-    if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.stop();
-    }
-  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedImage(e.target.files ? e.target.files[0] : null)
+    setSelectedImage(e.target.files ? e.target.files[0] : null);
   };
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // setSelectedVideo(e.target.files ? e.target.files[0] : null)
+    const file = e.target.files?.[0] || null;
+    setSelectedVideo(file);
+  
+    if (!file) return setThumbnail(null);
+  
+    const video = document.createElement("video");
+    video.src = URL.createObjectURL(file);
+    video.crossOrigin = "anonymous";
+    video.muted = true;
+    video.playsInline = true;
+  
+    video.addEventListener("loadedmetadata", () => {
+      video.currentTime = 0;
+    });
+  
+    video.addEventListener("seeked", () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+  
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageUrl = canvas.toDataURL("image/png");
+        setThumbnail(imageUrl);
+      }
+    });
+
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +68,10 @@ function MessageForm() {
 
     if (selectedImage !== null) {
       formData.append('image', selectedImage);
+    }
+
+    if (selectedVideo !== null) {
+      formData.append('video', selectedVideo)
     }
 
     try {
@@ -98,9 +98,8 @@ function MessageForm() {
 
     setName('');
     setMessage('');
-    setRecordedVideo(null);
+    setSelectedVideo(null);
     setSelectedImage(null);
-    setRecordingStatus('idle');
   };
 
   return (
@@ -151,7 +150,7 @@ function MessageForm() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-4">
+              {/* <div className="space-y-4">
                 <h3 className="text-xl font-semibold flex items-center text-gray-900 dark:text-white">
                   <Camera className="h-5 w-5 mr-2" />
                   Record Video Message
@@ -196,7 +195,7 @@ function MessageForm() {
                     </button>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold flex items-center text-gray-900 dark:text-white">
@@ -212,7 +211,7 @@ function MessageForm() {
                 />
                 <label
                   htmlFor="photo-upload"
-                  className="block w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer text-center"
+                  className="block w-full py-3 px-4 bg-[#f43f5e] font-semibold dark:bg-[#f43f5e] text-white dark:text-gray-300 rounded-lg hover:bg-[#e11d48] dark:hover:bg-[#e11d48] transition-colors cursor-pointer text-center"
                 >
                   Choose Photo
                 </label>
@@ -229,6 +228,43 @@ function MessageForm() {
                   </div>
                 )}
               </div>
+
+              <div className="space-y-4">
+                  <h3 className="text-xl font-semibold flex items-center text-gray-900 dark:text-white">
+                    <Camera className="h-5 w-5 mr-2" />
+                    Upload Video
+                  </h3>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoUpload}
+                    className="hidden"
+                    id="video-upload"
+                  />
+                  <label
+                    htmlFor="video-upload"
+                    className="block w-full py-3 px-4 font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer text-center"
+                  >
+                    Choose Video
+                  </label>
+                  {selectedVideo && (
+                    <div className="relative">
+                      {thumbnail ? (
+                          <img src={thumbnail} alt="Selected video" className="w-full h-48 border-2 object-cover rounded-lg" />
+                      ):(
+                        <div className="w-full h-48 bg-blue-400 dark:bg-gray-700 rounded-lg animate-pulse" />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedVideo(null)}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
+              </div>
+
             </div>
 
             <button

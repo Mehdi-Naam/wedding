@@ -28,4 +28,6 @@ migrations/
 backend/db.*
 db.sqlite3
 
+backend/media/*
+
 # backend/backend/backend/__pycache__/*
