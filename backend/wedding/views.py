@@ -12,6 +12,7 @@ class DataView(APIView):
 		messages = [
 			{
 				"message": msg["message"],
+				"time": msg["created_at"],
 				"full_name": msg["full_name"]
 			}
 			for msg in MessageSerializer(Message.objects.all(), many=True).data
@@ -20,6 +21,7 @@ class DataView(APIView):
 		images = [
 			{
 				"image": img["image"],
+				"time": img["created_at"],
 				"full_name": img["full_name"]
 			}
 			for img in ImageSerializer(Image.objects.all(), many=True).data
@@ -28,12 +30,14 @@ class DataView(APIView):
 		videos = [
 			{
 				"video": vid["video"],
+				"time": vid["created_at"],
 				"full_name": vid["full_name"]
 			}
 			for vid in VideoSerializer(Video.objects.all(), many=True).data
 		]
 
 		combined_data = messages + images + videos
+		combined_data.sort(key=lambda x: x["time"], reverse=True)
 		return Response(combined_data)
 
 	def post(self, request):
@@ -56,6 +60,7 @@ class DataView(APIView):
 			if img_serializer.is_valid():
 				img_serializer.save()
 			else:
+				print("error from serializer")
 				return Response({'error': img_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 		if video:
