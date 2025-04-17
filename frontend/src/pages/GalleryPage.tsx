@@ -136,7 +136,7 @@ function GalleryPage() {
                             <img src={message.content} alt="" className="w-full h-48 object-cover" />
                           )}
                           {message.type === 'video' && (
-                            <video src={message.content} controls className="w-full h-48 object-cover" />
+                            <video src={message.content} controls className="w-full h-48 object-fit" />
                           )}
                           {message.type === 'text' && (
                               <div className="px-4 pt-4">
