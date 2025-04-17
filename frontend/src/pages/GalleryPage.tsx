@@ -14,8 +14,8 @@ const avatar_URL = `http://127.0.0.1:8000/api`;
 const getAllData = () => {
 
   const [allData, setAllData] = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -131,22 +131,24 @@ function GalleryPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredMessages.map((message) => (
-                      <div key={message.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-colors duration-200">
+                      <div key={message.id} className="flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-colors duration-200">
                           {message.type === 'image' && (
                             <img src={message.content} alt="" className="w-full h-48 object-cover" />
                           )}
                           {message.type === 'video' && (
                             <video src={message.content} controls className="w-full h-48 object-cover" />
                           )}
-                              <div className="p-4">
-                                  {message.type === 'text' && (
+                          {message.type === 'text' && (
+                              <div className="px-4 pt-4">
                                     <p className="text-gray-700 dark:text-gray-300 text-lg mb-4">{message.content}</p>
-                                  )}
-                                  <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                                    <span>{message.author}</span>
-                                    <span>{message.timestamp}</span>
-                                  </div>
                               </div>
+                          )}
+                          <div className="p-4 relative mt-auto">
+                              <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                                <span>{message.author}</span>
+                                <span>{message.timestamp}</span>
+                              </div>
+                          </div>
                       </div>
                     ))
                 }

@@ -10,50 +10,50 @@ import {Toaster , toast } from 'sonner';
 function MessageForm() {
   const [name, setName]       = useState('');
   const [message, setMessage] = useState('');
-  // const [isRecording, setIsRecording] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [showEmoji, setShowEmoji]         = useState(false);
-  // const [recordedVideo, setRecordedVideo] = useState<File | null>(null);
+  const [recordedVideo, setRecordedVideo] = useState<File | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  // const webcamRef        = useRef<Webcam>(null);
-  // const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  // const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'recorded'>('idle');
+  const webcamRef        = useRef<Webcam>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'recorded'>('idle');
 
-  // const handleStartRecording = () => {
-  //   if (webcamRef.current) {
-  //     const stream = webcamRef.current.stream;
-  //     if (stream) {
-  //       mediaRecorderRef.current = new MediaRecorder(stream);
-  //       const chunks: BlobPart[] = [];
+  const handleStartRecording = () => {
+    if (webcamRef.current) {
+      const stream = webcamRef.current.stream;
+      if (stream) {
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        const chunks: BlobPart[] = [];
 
-  //       mediaRecorderRef.current.ondataavailable = (event) => {
-  //         if (event.data.size > 0) {
-  //           chunks.push(event.data);
-  //         }
-  //       };
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            chunks.push(event.data);
+          }
+        };
 
-  //       mediaRecorderRef.current.onstop = () => {
-  //         const blob = new Blob(chunks, { type: 'video/webm' });
-  //         setRecordedVideo(URL.createObjectURL(blob));
-  //         setRecordingStatus('recorded');
-  //       };
+        mediaRecorderRef.current.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          setRecordedVideo(URL.createObjectURL(blob));
+          setRecordingStatus('recorded');
+        };
 
-  //       mediaRecorderRef.current.start();
-  //       setRecordingStatus('recording');
-  //       setTimeout(() => {
-  //         if (mediaRecorderRef.current?.state === 'recording') {
-  //           mediaRecorderRef.current.stop();
-  //         }
-  //       }, 30000);
-  //     }
-  //   }
-  // };
+        mediaRecorderRef.current.start();
+        setRecordingStatus('recording');
+        setTimeout(() => {
+          if (mediaRecorderRef.current?.state === 'recording') {
+            mediaRecorderRef.current.stop();
+          }
+        }, 30000);
+      }
+    }
+  };
 
 
-  // const handleStopRecording = () => {
-  //   if (mediaRecorderRef.current?.state === 'recording') {
-  //     mediaRecorderRef.current.stop();
-  //   }
-  // };
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedImage(e.target.files ? e.target.files[0] : null)
@@ -98,9 +98,9 @@ function MessageForm() {
 
     setName('');
     setMessage('');
-    // setRecordedVideo(null);
+    setRecordedVideo(null);
     setSelectedImage(null);
-    // setRecordingStatus('idle');
+    setRecordingStatus('idle');
   };
 
   return (
@@ -151,7 +151,7 @@ function MessageForm() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* <div className="space-y-4">
+              <div className="space-y-4">
                 <h3 className="text-xl font-semibold flex items-center text-gray-900 dark:text-white">
                   <Camera className="h-5 w-5 mr-2" />
                   Record Video Message
@@ -196,7 +196,7 @@ function MessageForm() {
                     </button>
                   </div>
                 )}
-              </div> */}
+              </div>
 
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold flex items-center text-gray-900 dark:text-white">
